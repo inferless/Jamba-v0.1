@@ -3,5 +3,10 @@ build:
   system_packages:
     - "libssl-dev"
   python_packages:
-    - "torch==2.1.2"
-    - "vllm==0.3.2"
+    - "accelerate==0.28.0"
+    - "bitsandbytes==0.43.0"
+    - "torch==2.2.2"
+    - "transformers==4.39.0"
+    - "flash-attn==2.5.6"
+    - "mamba-ssm==1.2.0.post1"
+    - "causal-conv1d==1.2.0.post2"
