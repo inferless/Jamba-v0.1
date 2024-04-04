@@ -1,21 +1,25 @@
-from vllm import LLM, SamplingParams
+import torch
+from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
 
 class InferlessPythonModel:
     def initialize(self):
-        model_id = "Inferless/inferless-phi-2-DPO"  # Specify the model repository ID
-        # Define sampling parameters for model generation
-        self.sampling_params = SamplingParams(temperature=0.7, top_p=0.95, max_tokens=256)
-        # Initialize the LLM object
-        self.llm = LLM(model=model_id,dtype="float16")
+        quantization_config = BitsAndBytesConfig(load_in_8bit=True,llm_int8_skip_modules=["mamba"])
+        model = AutoModelForCausalLM.from_pretrained("ai21labs/Jamba-v0.1",
+                                             trust_remote_code=True,
+                                             torch_dtype=torch.bfloat16,
+                                             attn_implementation="flash_attention_2",
+                                             quantization_config=quantization_config)
+        tokenizer = AutoTokenizer.from_pretrained("ai21labs/Jamba-v0.1")
+        
+
         
     def infer(self,inputs):
         prompts = inputs["prompt"]  # Extract the prompt from the input
-        result = self.llm.generate(prompts, self.sampling_params)
-        # Extract the generated text from the result
-        result_output = [output.outputs[0].text for output in result]
-
+        input_ids = tokenizer(prompts, return_tensors='pt').to(model.device)["input_ids"]
+        outputs = model.generate(input_ids, max_new_tokens=216)
+        generated_text = tokenizer.batch_decode(outputs)
         # Return a dictionary containing the result
-        return {'generated_result': result_output[0]}
+        return {'generated_result': generated_text}
 
     def finalize(self):
         pass
