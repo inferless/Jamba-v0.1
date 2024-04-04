@@ -3,6 +3,7 @@ build:
   system_packages:
     - "libssl-dev"
   python_packages:
+    - "packaging==24.0"
     - "accelerate==0.28.0"
     - "bitsandbytes==0.43.0"
     - "torch==2.2.2"
